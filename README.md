@@ -5,16 +5,31 @@ When you open image, it places the user's NFT up top, a "What is this" section, 
 
 
 Needs:
-    NFT generation + storage
-        Random generation
-        Mint cost handling
-    Get all owners + ID endpoint (then loop for rendering)
+    X Build graphic
+    X NFT generation + storage
+        X Random generation
+        X Mint cost handling
+    X Copyright notice
+    X Make Payable for minting
+    X Test payment!
+
     Build interactive page
-    Build graphic
-    Copyright notice
-    Always has been meme for contract URI image
+        <g> together the circles
+        Big one as background, desatt'd, then smaller one as centerpiece
+        Use cdata to set the number so we can have access to it for titles
+        Big "Please connect with metamask to view the marketplace, mint your own, and more!
+    OPTIMIZE
+    Add comments
+
+    README tweaks
+        Mention emphasis on size and perf
+        Make list of things to change if you want to run your own
+            Note that image and JSON SVG mime type are different
+            Update URL + commission link in contract URI
+            Make sure licensing is managed well
 
 
 
 
-An entirely on-ethereum-chain self-contained NFT ecosystem. Each NFT is totally on-chain and contains a copy of a marketplace where you can purchase your own NFT. No IPFS, no side chain storage -- just 100% ethereum-based goodness.
+
+An entirely on-ethereum-chain self-contained NFT ecosystem. Each NFT is totally on-chain and has a self-contained minting and display interface where you can purchase your own NFT. No IPFS, no side chain storage -- just 100% ethereum-based goodness. Read more at https://github.com/jkingsman/OuroborosNFT.

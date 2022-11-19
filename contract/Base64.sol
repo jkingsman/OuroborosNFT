@@ -90,7 +90,34 @@ library Base64 {
         return result;
     }
 
+    // these functions not from OpenZeppelin
     function encodeAndPackURI(string memory data) internal pure returns (string memory) {
         return string(abi.encodePacked("data:application/json;base64,", encode(bytes(data))));
+    }
+
+    function encodeAndPackImageURI(string memory data) internal pure returns (string memory) {
+        return string(abi.encodePacked("data:image/svg+xml;base64,", encode(bytes(data))));
+    }
+
+    // from bguiz at https://stackoverflow.com/a/69302348/1588786
+    function uint2hexstr(uint256 i) internal pure returns (string memory) {
+        if (i == 0) return "0";
+        uint j = i;
+        uint length;
+        while (j != 0) {
+            length++;
+            j = j >> 4;
+        }
+        uint mask = 15;
+        bytes memory bstr = new bytes(length);
+        uint k = length;
+        while (i != 0) {
+            uint curr = (i & mask);
+            bstr[--k] = curr > 9 ?
+                bytes1(uint8(55 + curr)) :
+                bytes1(uint8(48 + curr)); // 55 = 65 - 10
+            i = i >> 4;
+        }
+        return string(bstr);
     }
 }

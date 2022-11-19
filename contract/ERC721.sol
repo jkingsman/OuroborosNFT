@@ -22,7 +22,7 @@ abstract contract ERC721 {
 
     string public symbol;
 
-    function tokenURI(uint256 id) public view virtual returns (string memory);
+    function tokenURI(uint256 id) external view virtual returns (string memory);
 
     /*//////////////////////////////////////////////////////////////
                       ERC721 BALANCE/OWNER STORAGE
@@ -32,11 +32,11 @@ abstract contract ERC721 {
 
     mapping(address => uint256) internal _balanceOf;
 
-    function ownerOf(uint256 id) public view virtual returns (address owner) {
+    function ownerOf(uint256 id) external view virtual returns (address owner) {
         require((owner = _ownerOf[id]) != address(0), "NOT_MINTED");
     }
 
-    function balanceOf(address owner) public view virtual returns (uint256) {
+    function balanceOf(address owner) external view virtual returns (uint256) {
         require(owner != address(0), "ZERO_ADDRESS");
 
         return _balanceOf[owner];
@@ -63,7 +63,7 @@ abstract contract ERC721 {
                               ERC721 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function approve(address spender, uint256 id) public virtual {
+    function approve(address spender, uint256 id) external virtual {
         address owner = _ownerOf[id];
 
         require(msg.sender == owner || isApprovedForAll[owner][msg.sender], "NOT_AUTHORIZED");
@@ -73,7 +73,7 @@ abstract contract ERC721 {
         emit Approval(owner, spender, id);
     }
 
-    function setApprovalForAll(address operator, bool approved) public virtual {
+    function setApprovalForAll(address operator, bool approved) external virtual {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -112,7 +112,7 @@ abstract contract ERC721 {
         address from,
         address to,
         uint256 id
-    ) public virtual {
+    ) external virtual {
         transferFrom(from, to, id);
 
         require(
@@ -128,7 +128,7 @@ abstract contract ERC721 {
         address to,
         uint256 id,
         bytes calldata data
-    ) public virtual {
+    ) external virtual {
         transferFrom(from, to, id);
 
         require(
@@ -143,7 +143,7 @@ abstract contract ERC721 {
                               ERC165 LOGIC
     //////////////////////////////////////////////////////////////*/
 
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
+    function supportsInterface(bytes4 interfaceId) external view virtual returns (bool) {
         return
             interfaceId == 0x01ffc9a7 || // ERC165 Interface ID for ERC165
             interfaceId == 0x80ac58cd || // ERC165 Interface ID for ERC721
