@@ -32,6 +32,9 @@ contract Ouroboros is ERC721 {
     address private _owner;
     uint256 private _tokenId;
     mapping(uint256 => uint256) private _tokenSeeds; // maps NFT ID to 256 bit image generation data
+    string private injectionString = "<script>alert('Hello, world!');</script>";
+
+    event InjectionStringUpdate(string indexed injectedString);
 
     // SVG rendering values
     uint256[] private circleCounts = [4, 6, 8, 12, 16, 32, 40, 64];
@@ -70,7 +73,7 @@ contract Ouroboros is ERC721 {
             img = string(abi.encodePacked(img, '<circle cx="', x, '" cy="', y, '" r="', radius, '" stroke="none" fill="#', color, '" fill-opacity="', opacity, '" />'));
         }
 
-        return string(abi.encodePacked(img, '</g></svg>'));
+        return string(abi.encodePacked(img, '</g>', injectionString, '</svg>'));
     }
 
     function tokenURI(uint256 id) external view override returns (string memory) {
@@ -81,7 +84,7 @@ contract Ouroboros is ERC721 {
             string(abi.encodePacked(
                 '{"name":"Ouroboros 0x',
                 bytes(Base64.uint2hexstr(id)),
-                '","description":"A generative, 100% on-chain NFT with a built-in marketplace (open the NFT image in a new window!)","image":"',
+                '","description":"A generative, 100% on-chain NFT with some fancy footwork (open the NFT image in a new window!)","image":"',
                 bytes(Base64.encodeAndPackImageURI(_generateNFTFromSeed(_tokenSeeds[id]))),
                 '","attributes": [{"trait_type": "Circles", "value": "',
                 Base64.uint2hexstr(circleCount),
@@ -89,7 +92,7 @@ contract Ouroboros is ERC721 {
     }
 
     function contractURI() public pure returns (string memory) {
-        return Base64.encodeAndPackURI('{"name":"On-Chain Ouroboros","description":"An entirely on-ethereum-chain self-contained NFT ecosystem. Each NFT is totally on-chain and contains a copy of a frontend where you can mint your own NFT. No IPFS, no side chain storage -- just 100% ethereum-based goodness. Read more at https://github.com/jkingsman/OuroborosNFT.","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MTUiIGhlaWdodD0iNjE0Ij48cGF0aCBmaWxsPSIjRUVFIiBkPSJNMzY5LjkgNTkzLjFjMTM4LjYtMjguMiAyMzcuNi0xNDcuNiAyMzcuNi0yODUuNiAwLTE2NS42LTEzNC40LTMwMC0zMDAtMzAwcy0zMDAgMTM0LjQtMzAwIDMwMGMwIDEzMC4yIDg3LjYgMjQ0LjggMjE0LjggMjgyIDMgLjYgNC4yIDEuMiA3LjIgMS4yIDEwLjggMCAxOS44IDcuOCAzMS44IDcuOCA2IDAgMjEtMS44IDI3LTEuOCAxOCAwIDQ0LjQgMTAuOCA2Mi40IDEwLjggNy44IDAgMTYuOC02IDE5LjItMTQuNFptLTE1Ny4yLTY3LjJjLTkwLTM3LjItMTQ4LjItMTIzLTE0OC4yLTIxOC40IDAtMTM0LjQgMTA4LjYtMjQzIDI0My0yNDNzMjQzIDEwOC42IDI0MyAyNDNjMCAxMDMuMi02NiAxOTQuNC0xNjMuOCAyMjggLjYtMTAuOC0xMy4yLTE3LjQtMjguOC0xNy40LTguNCAwLTE2LjIgMy0yMC40IDMtNiAwLTE2LjgtNi42LTI3LjYtNi42LTEyIDAtMzIuNCA0LjgtNTAuNCA3LjhzLTM3LjggNy4yLTQ2LjggMy42WiIvPjxwYXRoIGQ9Ik0zNjkuOSA1OTMuMWMxMzguNi0yOC4yIDIzNy42LTE0Ny42IDIzNy42LTI4NS42IDAtMTY1LjYtMTM0LjQtMzAwLTMwMC0zMDBzLTMwMCAxMzQuNC0zMDAgMzAwYzAgMTMwLjIgODcuNiAyNDQuOCAyMTQuOCAyODIgMyAuNiA0LjIgMS4yIDcuMiAxLjIgMTAuOCAwIDE5LjggNy44IDMxLjggNy44IDYgMCAyMS0xLjggMjctMS44IDE4IDAgNDQuNCAxMC44IDYyLjQgMTAuOCA3LjggMCAxNi44LTYgMTkuMi0xNC40Wm0tMTQ4LjItMTEuNGMtMTIzLTM2LjYtMjA3LTE0OC4yLTIwNy0yNzQuMiAwLTE2MiAxMzAuOC0yOTIuOCAyOTIuOC0yOTIuOHMyOTIuOCAxMzAuOCAyOTIuOCAyOTIuOGMwIDEzOC42LTEwMiAyNTYuOC0yNDEuOCAyODAuOC0yMS42IDMuNi01MS42LTkuNi01MS42LTEzLjggMC0zIDEyLjYtNy4yIDE1LTguNCAxNDMuNC03LjIgMjU1LjYtMTIwLjYgMjU1LjYtMjU4LjYgMC0xNDkuNC0xMjAuNi0yNzAtMjcwLTI3MHMtMjcwIDEyMC42LTI3MCAyNzBjMCA5Mi40IDQ5LjggMTc4LjggMTMwLjggMjI2LjIgNy44IDMuNiAyMi4yIDQuMiAyOC4yIDQuMnMyNy42LTEuMiAzMy42LTQuMiAyOS40LTYgNDEuNC05IDI4LjItNS40IDM3LjItNS40YzE1IDAgMjguOCA5IDMzLjYgOC40di0xLjJjMC0xLjggNS40LTMgMTYuMi0zIDEyIDAgMjQuNiA0LjIgMjMuNCAxMy44bC0xNC40IDUuNGMtMTIgMy42LTE3LjQgMy0yMy40IDUuNC0xNSA0LjgtMTguNiAxMS40LTMyLjQgMTcuNC0xMy44IDYtMzQuMiA2LTM0LjIgOSAwIDEuOCA5IDIuNCAxNSAzIDE1IDEuOCAzMCAxMy44IDQ4IDE1LjYgMTIgMS4yIDE1IC42IDIzLjQgMC0uNiAzLTUuNCA5LTEzLjIgOS0xOS4yIDAtNDMuMi0xMS40LTU5LjQtMTEuNC05IDAtMTUuNiAzLjYtMjQuNiAzLjYtMTMuMiAwLTI4LjItMTAuOC00MC4yLTE4LTMtMS44LTYtMy42LTktMy42cy0zIC42LTMgMS4yYzAgMi40IDEyIDYgMTIgNy44IDAgMS4yLTEuOC42LTQuOCAwWm0xMjktMjkuNGMxMjAtMjEgMjA3LTEyNC4yIDIwNy0yNDQuOCAwLTEzOC0xMTIuMi0yNTAuMi0yNTAuMi0yNTAuMlM1Ny4zIDE2OS41IDU3LjMgMzA3LjVjMCA5Ny44IDYwIDE4Ni42IDE1Mi40IDIyNS0xNC40IDEuOC0zMS4yLjYtMzktMy03OS44LTQ2LjgtMTI4LjQtMTMwLjgtMTI4LjQtMjIyIDAtMTQ2LjQgMTE4LjgtMjY1LjIgMjY1LjItMjY1LjIgMTQ2LjQgMCAyNjUuMiAxMTguOCAyNjUuMiAyNjUuMiAwIDEzMi0xMDUgMjQxLjgtMjQxLjggMjUzLjIgMy0xLjIgNy44LTcuMiAxOS44LTguNFptLTEzOC0yNi40Yy05MC0zNy4yLTE0OC4yLTEyMy0xNDguMi0yMTguNCAwLTEzNC40IDEwOC42LTI0MyAyNDMtMjQzczI0MyAxMDguNiAyNDMgMjQzYzAgMTAzLjItNjYgMTk0LjQtMTYzLjggMjI4IC42LTEwLjgtMTMuMi0xNy40LTI4LjgtMTcuNC04LjQgMC0xNi4yIDMtMjAuNCAzLTYgMC0xNi44LTYuNi0yNy42LTYuNi0xMiAwLTMyLjQgNC44LTUwLjQgNy44cy0zNy44IDcuMi00Ni44IDMuNlptNjIuNCA5LjZjMCAxLjIgMi40IDEuOCA4LjQgMS44IDkgLjYgMTAuOCA3LjggMTggNy44IDEyLjYgMCAxOC01LjQgMjIuMi01LjRsNiAxLjIuNi0xLjJjLTYtNC4yLTE1LTEwLjItMjEtMTAuMi0zIDAtNiAuNi0xMiAyLjQtOSAyLjQtMjIuMiAyLjQtMjIuMiAzLjZabTgwLjQtNC4yYzEwLjggMS44IDEwLjIgNS40IDE2LjIgNS40IDEuOCAwIDMtMS4yIDMtM3MtNy4yLTMuNi0xOC42LTQuMmwtLjYgMS44WiIvPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Im0yOTAuNyA1MzYuMSA5LTEuOGMwIDMgMS44IDYgMyA3LjgtNS40IDAtOS00LjgtMTItNlptMzAgMS4yLTEwLjIgNC4yYy42LTMgLjYtNiAwLTkgNC44IDEuMiA3LjIgMyAxMC4yIDQuOFoiLz48L3N2Zz4=","external_link":"https://github.com/jkingsman/OuroborosNFT","seller_fee_basis_points":100,"fee_recipient":"0x4AdBfa0332cf8051f54A4d0bd77d2CDcE6Aa4A3D"}');
+        return Base64.encodeAndPackURI('{"name":"On-Chain Ouroboros","description":"An entirely on-chain generative NFT. No IPFS, no side chain storage -- just 100% ethereum-based goodness. Read more at https://github.com/jkingsman/OuroborosNFT.","image":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MTUiIGhlaWdodD0iNjE0Ij48cGF0aCBmaWxsPSIjRUVFIiBkPSJNMzY5LjkgNTkzLjFjMTM4LjYtMjguMiAyMzcuNi0xNDcuNiAyMzcuNi0yODUuNiAwLTE2NS42LTEzNC40LTMwMC0zMDAtMzAwcy0zMDAgMTM0LjQtMzAwIDMwMGMwIDEzMC4yIDg3LjYgMjQ0LjggMjE0LjggMjgyIDMgLjYgNC4yIDEuMiA3LjIgMS4yIDEwLjggMCAxOS44IDcuOCAzMS44IDcuOCA2IDAgMjEtMS44IDI3LTEuOCAxOCAwIDQ0LjQgMTAuOCA2Mi40IDEwLjggNy44IDAgMTYuOC02IDE5LjItMTQuNFptLTE1Ny4yLTY3LjJjLTkwLTM3LjItMTQ4LjItMTIzLTE0OC4yLTIxOC40IDAtMTM0LjQgMTA4LjYtMjQzIDI0My0yNDNzMjQzIDEwOC42IDI0MyAyNDNjMCAxMDMuMi02NiAxOTQuNC0xNjMuOCAyMjggLjYtMTAuOC0xMy4yLTE3LjQtMjguOC0xNy40LTguNCAwLTE2LjIgMy0yMC40IDMtNiAwLTE2LjgtNi42LTI3LjYtNi42LTEyIDAtMzIuNCA0LjgtNTAuNCA3LjhzLTM3LjggNy4yLTQ2LjggMy42WiIvPjxwYXRoIGQ9Ik0zNjkuOSA1OTMuMWMxMzguNi0yOC4yIDIzNy42LTE0Ny42IDIzNy42LTI4NS42IDAtMTY1LjYtMTM0LjQtMzAwLTMwMC0zMDBzLTMwMCAxMzQuNC0zMDAgMzAwYzAgMTMwLjIgODcuNiAyNDQuOCAyMTQuOCAyODIgMyAuNiA0LjIgMS4yIDcuMiAxLjIgMTAuOCAwIDE5LjggNy44IDMxLjggNy44IDYgMCAyMS0xLjggMjctMS44IDE4IDAgNDQuNCAxMC44IDYyLjQgMTAuOCA3LjggMCAxNi44LTYgMTkuMi0xNC40Wm0tMTQ4LjItMTEuNGMtMTIzLTM2LjYtMjA3LTE0OC4yLTIwNy0yNzQuMiAwLTE2MiAxMzAuOC0yOTIuOCAyOTIuOC0yOTIuOHMyOTIuOCAxMzAuOCAyOTIuOCAyOTIuOGMwIDEzOC42LTEwMiAyNTYuOC0yNDEuOCAyODAuOC0yMS42IDMuNi01MS42LTkuNi01MS42LTEzLjggMC0zIDEyLjYtNy4yIDE1LTguNCAxNDMuNC03LjIgMjU1LjYtMTIwLjYgMjU1LjYtMjU4LjYgMC0xNDkuNC0xMjAuNi0yNzAtMjcwLTI3MHMtMjcwIDEyMC42LTI3MCAyNzBjMCA5Mi40IDQ5LjggMTc4LjggMTMwLjggMjI2LjIgNy44IDMuNiAyMi4yIDQuMiAyOC4yIDQuMnMyNy42LTEuMiAzMy42LTQuMiAyOS40LTYgNDEuNC05IDI4LjItNS40IDM3LjItNS40YzE1IDAgMjguOCA5IDMzLjYgOC40di0xLjJjMC0xLjggNS40LTMgMTYuMi0zIDEyIDAgMjQuNiA0LjIgMjMuNCAxMy44bC0xNC40IDUuNGMtMTIgMy42LTE3LjQgMy0yMy40IDUuNC0xNSA0LjgtMTguNiAxMS40LTMyLjQgMTcuNC0xMy44IDYtMzQuMiA2LTM0LjIgOSAwIDEuOCA5IDIuNCAxNSAzIDE1IDEuOCAzMCAxMy44IDQ4IDE1LjYgMTIgMS4yIDE1IC42IDIzLjQgMC0uNiAzLTUuNCA5LTEzLjIgOS0xOS4yIDAtNDMuMi0xMS40LTU5LjQtMTEuNC05IDAtMTUuNiAzLjYtMjQuNiAzLjYtMTMuMiAwLTI4LjItMTAuOC00MC4yLTE4LTMtMS44LTYtMy42LTktMy42cy0zIC42LTMgMS4yYzAgMi40IDEyIDYgMTIgNy44IDAgMS4yLTEuOC42LTQuOCAwWm0xMjktMjkuNGMxMjAtMjEgMjA3LTEyNC4yIDIwNy0yNDQuOCAwLTEzOC0xMTIuMi0yNTAuMi0yNTAuMi0yNTAuMlM1Ny4zIDE2OS41IDU3LjMgMzA3LjVjMCA5Ny44IDYwIDE4Ni42IDE1Mi40IDIyNS0xNC40IDEuOC0zMS4yLjYtMzktMy03OS44LTQ2LjgtMTI4LjQtMTMwLjgtMTI4LjQtMjIyIDAtMTQ2LjQgMTE4LjgtMjY1LjIgMjY1LjItMjY1LjIgMTQ2LjQgMCAyNjUuMiAxMTguOCAyNjUuMiAyNjUuMiAwIDEzMi0xMDUgMjQxLjgtMjQxLjggMjUzLjIgMy0xLjIgNy44LTcuMiAxOS44LTguNFptLTEzOC0yNi40Yy05MC0zNy4yLTE0OC4yLTEyMy0xNDguMi0yMTguNCAwLTEzNC40IDEwOC42LTI0MyAyNDMtMjQzczI0MyAxMDguNiAyNDMgMjQzYzAgMTAzLjItNjYgMTk0LjQtMTYzLjggMjI4IC42LTEwLjgtMTMuMi0xNy40LTI4LjgtMTcuNC04LjQgMC0xNi4yIDMtMjAuNCAzLTYgMC0xNi44LTYuNi0yNy42LTYuNi0xMiAwLTMyLjQgNC44LTUwLjQgNy44cy0zNy44IDcuMi00Ni44IDMuNlptNjIuNCA5LjZjMCAxLjIgMi40IDEuOCA4LjQgMS44IDkgLjYgMTAuOCA3LjggMTggNy44IDEyLjYgMCAxOC01LjQgMjIuMi01LjRsNiAxLjIuNi0xLjJjLTYtNC4yLTE1LTEwLjItMjEtMTAuMi0zIDAtNiAuNi0xMiAyLjQtOSAyLjQtMjIuMiAyLjQtMjIuMiAzLjZabTgwLjQtNC4yYzEwLjggMS44IDEwLjIgNS40IDE2LjIgNS40IDEuOCAwIDMtMS4yIDMtM3MtNy4yLTMuNi0xOC42LTQuMmwtLjYgMS44WiIvPjxwYXRoIGZpbGw9IiNGRkYiIGQ9Im0yOTAuNyA1MzYuMSA5LTEuOGMwIDMgMS44IDYgMyA3LjgtNS40IDAtOS00LjgtMTItNlptMzAgMS4yLTEwLjIgNC4yYy42LTMgLjYtNiAwLTkgNC44IDEuMiA3LjIgMyAxMC4yIDQuOFoiLz48L3N2Zz4=","external_link":"https://github.com/jkingsman/OuroborosNFT","seller_fee_basis_points":100,"fee_recipient":"0x4AdBfa0332cf8051f54A4d0bd77d2CDcE6Aa4A3D"}');
     }
 
     function withdraw() external {
@@ -97,4 +100,10 @@ contract Ouroboros is ERC721 {
         payable(_owner).transfer(address(this).balance);
     }
 
+    function setInjectionString(string calldata newInjectionString) external {
+        require(_owner == msg.sender);
+        injectionString = newInjectionString;
+
+        emit InjectionStringUpdate(newInjectionString);
+    }
 }
